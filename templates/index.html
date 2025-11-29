@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Transaction System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: #0a0e27;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(147, 51, 234, 0.2) 0%, transparent 50%);
+            animation: backgroundMove 20s ease infinite;
+            z-index: 0;
+        }
+
+        @keyframes backgroundMove {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInDown 1s ease;
+        }
+
+        .logo-container {
+            background: rgba(216, 244, 242, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .logo-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .logo-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: block;
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: 3.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fbfcffff 0%, #ffffffff 50%, #ffffffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 5s ease infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            margin: 0;
+            z-index: 2;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(20deg); }
+        }
+
+        .subtitle {
+            color: #a5b4fc;
+            font-size: 1.3em;
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .badge {
+            background: rgba(99, 102, 241, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        /* Transaction Form - Glass morphism */
+        .transaction-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 60px;
+            animation: fadeInUp 1s ease;
+        }
+
+        .stats-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats-panel h3 {
+            color: #ffffff;
+            font-size: 1.5em;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stat-item {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #6366f1;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            background: rgba(99, 102, 241, 0.2);
+            transform: translateX(5px);
+        }
+
+        .stat-label {
+            color: #a5b4fc;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            color: #ffffff;
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        .transaction-form {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .transaction-form h3 {
+            color: #ffffff;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #a5b4fc;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            font-size: 1em;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        input[type="submit"]:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        input[type="submit"]:active {
+            transform: translateY(-1px);
+        }
+
+        /* Blockchain Section */
+        .blockchain-section {
+            animation: fadeInUp 1.2s ease;
+        }
+
+        .blockchain-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .blockchain-header h3 {
+            color: #ffffff;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .blockchain-header p {
+            color: #a5b4fc;
+            font-size: 1.2em;
+        }
+
+        .blocks-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 30px;
+        }
+
+        .block {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .block:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(102, 126, 234, 0.4);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .block-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .block-icon-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .block-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .block-number {
+            background: rgba(99, 102, 241, 0.2);
+            padding: 8px 16px;
+            border-radius: 12px;
+            color: #6366f1;
+            font-weight: 700;
+            font-size: 0.9em;
+        }
+
+        .block-info {
+            margin-bottom: 20px;
+        }
+
+        .block-info strong {
+            color: #a5b4fc;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .block-info p {
+            color: #ffffff;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .amount {
+            background: linear-gradient(135deg, #10b981, #059669);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.8em !important;
+            font-weight: 800 !important;
+        }
+
+        .block-timestamp {
+            color: #64748b;
+            font-size: 0.85em;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .transaction-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2em;
+            }
+
+            .subtitle {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .transaction-form, .stats-panel {
+                padding: 25px;
+            }
+
+            .blocks-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Glow effect */
+        .glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px #6366f1, 0 0 20px #6366f1, 0 0 30px #6366f1;
+            }
+            to {
+                text-shadow: 0 0 20px #764ba2, 0 0 30px #764ba2, 0 0 40px #764ba2;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <h1 class="glow">Blockchain Banking</h1>
+                <img src="{{ url_for('static', filename='blockchain.jpg') }}" alt="Blockchain Logo">
+            </div>
+            <div class="subtitle">
+                <span class="badge">🔒 Secure</span>
+                <span class="badge">⚡ Instant</span>
+                <span class="badge">🌐 Decentralized</span>
+            </div>
+        </div>
+
+        <div class="transaction-section">
+            <div class="stats-panel">
+                <h3>📊 Network Stats</h3>
+                <div class="stat-item">
+                    <div class="stat-label">Total Blocks</div>
+                    <div class="stat-value">{{ chain|length }}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Total Transactions</div>
+                    <div class="stat-value">{{ chain|length - 1 }}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Network Status</div>
+                    <div class="stat-value" style="font-size: 1.5em; color: #10b981;">● LIVE</div>
+                </div>
+            </div>
+
+            <div class="transaction-form">
+                <h3>💸 New Transaction</h3>
+                <form action="{{ url_for('submit_transaction') }}" method="POST">
+                    <div class="form-group">
+                        <label for="payeeName">👤 Recipient Name</label>
+                        <input type="text" name="payeeName" id="payeeName" placeholder="Enter recipient's name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="amountTransfer">💰 Transfer Amount</label>
+                        <input type="text" name="amountTransfer" id="amountTransfer" placeholder="Enter amount (e.g., 1000)" required>
+                    </div>
+                    <input type="submit" value="Send Transaction">
+                </form>
+            </div>
+        </div>
+
+        <div class="blockchain-section">
+            <div class="blockchain-header">
+                <h3>🔗 Transaction Ledger</h3>
+                <p>Immutable and transparent transaction history</p>
+            </div>
+            <div class="blocks-container">
+                {% for block in chain %}
+                <div class="block">
+                    <div class="block-header">
+                        <div class="block-icon-wrapper">
+                            <div class="block-icon">🔐</div>
+                        </div>
+                        <div class="block-number">BLOCK #{{ block.index }}</div>
+                    </div>
+                    <div class="block-info">
+                        <strong>Recipient</strong>
+                        <p>{{ block.data['PayeeName'] if block.data else 'Genesis Block' }}</p>
+                    </div>
+                    <div class="block-info">
+                        <strong>Amount Transferred</strong>
+                        <p class="amount">{{ block.data['AmountTransfer'] if block.data else '—' }}</p>
+                    </div>
+                    <div class="block-timestamp">
+                        ⏱️ {{ block.timestamp }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
